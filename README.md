@@ -40,6 +40,15 @@ A production-grade, local container orchestration and observability laboratory p
 - **Shared Network**: All exposed containers connect to the `proxy` Docker network.
 - **TLS Wildcard**: Traefik automatically terminates TLS for all `*.chetan.local` domains using the certificates located in `traefik/certs/`.
 
+### Initial Login Credentials
+
+- **Default Username**: `arcane`
+- **Default Password**: `arcane-admin`
+- **Documentation Reference**: [Arcane Installation & Setup](https://getarcane.app/docs/get-started/installation#open-arcane)
+
+> [!NOTE]
+> You will be prompted to change these default credentials after logging in for the first time.
+
 ---
 
 ## Adding New Projects in Arcane
