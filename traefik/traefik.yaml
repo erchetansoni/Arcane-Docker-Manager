@@ -8,6 +8,27 @@ log:
 api:
   dashboard: true
 
+accessLog:
+  format: json
+  bufferingSize: 100
+  filters:
+    retryAttempts: true
+    minDuration: "10ms"
+
+metrics:
+  prometheus:
+    entryPoint: websecure
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+
+tracing:
+  serviceName: traefik
+  sampleRate: 1.0
+  otlp:
+    http:
+      endpoint: "http://otel-collector:4318/v1/traces"
+
 entryPoints:
   web:
     address: ":80"
