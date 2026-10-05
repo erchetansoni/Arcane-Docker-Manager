@@ -15,12 +15,12 @@ services:
       - arcane-backups:/backups
     labels:
       - traefik.enable=true
-      - 'traefik.http.routers.arcane-grpc.rule=(Host(`dockermgr.chetan.local`) || Host(`dockermge.chetan.local`)) && Path(`/api/tunnel/connect`) && Method(`POST`) && HeaderRegexp(`Content-Type`, `^application/grpc`)'
+      - 'traefik.http.routers.arcane-grpc.rule=Host(`${ARCANE_HOST:-dockermgr.chetan.local}`) && Path(`/api/tunnel/connect`) && Method(`POST`) && HeaderRegexp(`Content-Type`, `^application/grpc`)'
       - traefik.http.routers.arcane-grpc.priority=100
       - traefik.http.routers.arcane-grpc.service=arcane-grpc
       - traefik.http.services.arcane-grpc.loadbalancer.server.port=3552
       - traefik.http.services.arcane-grpc.loadbalancer.server.scheme=h2c
-      - 'traefik.http.routers.arcane-web.rule=Host(`dockermgr.chetan.local`) || Host(`dockermge.chetan.local`)'
+      - 'traefik.http.routers.arcane-web.rule=Host(`${ARCANE_HOST:-dockermgr.chetan.local}`)'
       - traefik.http.routers.arcane-web.priority=10
       - traefik.http.routers.arcane-web.service=arcane-web
       - traefik.http.services.arcane-web.loadbalancer.server.port=3552
@@ -48,7 +48,7 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - 'traefik.http.routers.traefik-dashboard.rule=Host(`proxy.chetan.local`)'
+      - 'traefik.http.routers.traefik-dashboard.rule=Host(`${TRAEFIK_HOST:-proxy.chetan.local}`)'
       - traefik.http.routers.traefik-dashboard.service=api@internal
     networks:
       - proxy
