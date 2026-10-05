@@ -1,42 +1,13 @@
-# global:: Defines system-wide settings for Traefik.
-# checkNewVersion: false: Disables Traefik's periodic check to see if a newer version of Traefik is available.This prevents unnecessary outbound internet traffic (ideal for air-gapped / enterprise networks).
-# sendAnonymousUsage: false: Disables sending anonymous telemetry / usage statistics back to Traefik.
 global:
   checkNewVersion: false
   sendAnonymousUsage: false
 
-# level: INFO: Sets the log verbosity.
-# Supported levels are DEBUG, INFO, WARN, ERROR, FATAL, and PANIC.
-# INFO provides general startup and operational logs without flooding the console.
 log:
   level: INFO
 
-# api:: Enables Traefik’s built-in REST API and Web Dashboard.
-# dashboard: true: Turns on the visual Traefik web interface (shows routers, services, entryPoints, TLS status, errors, etc.).
-# insecure: true: Tells Traefik to serve the dashboard/API directly on port 8080 without requiring an explicit router or authentication for local debugging.
 api:
   dashboard: true
-  insecure: true
 
-# entryPoints:: Root configuration block for network listeners.
-# web:: The custom name given to the HTTP entry point.
-# address: ":80": Traefik binds and listens on port 80 (all network interfaces).
-# http:: Configures HTTP-specific behaviors for this entry point.
-# redirections:: Sets up an automatic redirect rule.
-# entryPoint:: Specifies the redirect target.
-# to: websecure: Forwards all traffic arriving on port 80 to the websecure entryPoint (port 443).
-# scheme: https: Forces the protocol scheme to https:// (meaning http://in-ot-monitoring... will automatically redirect to https://in-ot-monitoring...).
-
-# websecure:: The name given to the HTTPS listener.
-# address: ":443": Binds and listens on port 443 for all secure TLS traffic.
-# traefik:: The internal entry point name for Traefik’s management interface.
-# address: ":8080": Binds and listens on port 8080 for the dashboard and API.
-# agent-receiver:: Checkmk Agent Receiver entry point (TCP).
-# address: ":8000": Listens on TCP port 8000 for Checkmk agent registration & data (if exposed).
-# snmptrap:: SNMP Trap Receiver entry point (UDP).
-# address: ":162/udp": Listens on UDP port 162 for incoming SNMP traps from network devices.
-# syslog:: Syslog Receiver entry point (UDP).
-# address: ":514/udp": Listens on UDP port 514 for syslog events from network switches & servers.
 entryPoints:
   web:
     address: ":80"
@@ -47,27 +18,14 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
-  traefik:
-    address: ":8080"
-  # agent-receiver:
-  #   address: ":8000"
-  # snmptrap:
-  #   address: ":162/udp"
-  # syslog:
-  #   address: ":514/udp"
+    http:
+      tls: {}
 
-# providers:: Section defining where Traefik discovers routing configuration.
-# docker:: Enables discovery from the Docker socket (/var/run/docker.sock).
-# exposedByDefault: false: Traefik will not automatically expose all running containers.
-# Only containers with the label "traefik.enable=true" would be exposed (if any are used).
-
-# file:: Enables the File Provider (reads YAML/TOML configuration files).
-# directory: /etc/traefik/dynamic: Tells Traefik to scan this directory and load every .yaml file inside it (e.g. tls.yaml, in-ot-monitoring.avgol.com.yaml, etc.).
-# watch: true: Automatically monitors the directory for changes.
-# If you add, edit, or delete a file, Traefik immediately applies the changes dynamically with zero restart and no downtime.
 providers:
   docker:
     exposedByDefault: false
+    network: proxy
   file:
     directory: /etc/traefik/dynamic
     watch: true
+
