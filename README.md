@@ -227,6 +227,41 @@ To change the backup folder to any custom location (e.g., `./data/arcane-backups
 
 ---
 
+## Traefik Observability: Access Logs, Metrics & Tracing
+
+Traefik has built-in observability features configured in `traefik/traefik.yaml`:
+
+### 1. Access Logs (JSON Format)
+- Formatted as structured JSON with client IP, request method, path, response status, duration, TLS cipher, and OpenTelemetry trace IDs.
+- Outputs directly to Docker standard output (`stdout`).
+
+### 2. Metrics (Prometheus)
+- Live Prometheus metrics are served directly on the secure entrypoint at:
+  ```
+  https://proxy.chetan.local/metrics
+  ```
+- **Host storage impact**: **0 MB** (metrics counters are stored entirely in RAM and reset on container restart).
+
+### 3. Distributed Tracing (OpenTelemetry OTLP)
+- Traefik traces incoming and outgoing HTTP spans using OpenTelemetry standards.
+- Traces are streamed over network to an OTLP collector (e.g., Tempo, Jaeger).
+- **Host storage impact**: **0 MB** (traces are never written to host disk).
+
+### 4. Storage Protection & FIFO Log Capping
+To ensure Docker logs **never fill up host machine storage**, Docker's `json-file` logging driver is configured with strict First-In, First-Out (FIFO) log rotation.
+
+You can configure the maximum cap directly in [.env](file:///c:/Projects/My_Projects/Arcane-lab/.env):
+
+```env
+# Logging Capping & Retention (FIFO log rotation)
+LOG_MAX_SIZE=10m    # Maximum size of an individual log chunk before rotating
+LOG_MAX_FILE=5      # Keep at most 5 rotated files (Total disk cap = 10m * 5 = 50MB max)
+```
+
+When the log limit is reached, Docker automatically purges the oldest log file in a circular FIFO queue.
+
+---
+
 ## Project Structure
 
 ```
