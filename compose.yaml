@@ -1,3 +1,7 @@
+networks:
+  proxy:
+    name: proxy
+
 services:
   arcane:
     image: ghcr.io/getarcaneapp/manager:v2.15.0
@@ -8,6 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./arcane-data:/app/data
       - ./projects:/app/data/projects
+      - arcane-backups:/backups
     labels:
       - traefik.enable=true
       - 'traefik.http.routers.arcane-grpc.rule=(Host(`dockermgr.chetan.local`) || Host(`dockermge.chetan.local`)) && Path(`/api/tunnel/connect`) && Method(`POST`) && HeaderRegexp(`Content-Type`, `^application/grpc`)'
@@ -64,6 +69,12 @@ services:
         max-size: "10m"
         max-file: "5"
 
-networks:
-  proxy:
-    name: proxy
+volumes:
+  arcane-backups:
+    name: arcane-backups
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/arcane-backups
+

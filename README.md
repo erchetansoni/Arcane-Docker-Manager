@@ -192,13 +192,41 @@ volumes:
 
 ---
 
+## Customizing the Backup Folder Location
+
+Arcane's backup engine internally expects a Docker volume named `arcane-backups`. In `compose.yaml`, this volume is bound to your host filesystem using `driver_opts`.
+
+To change the backup folder to any custom location (e.g., `./data/arcane-backups/` or `D:/Backups/`):
+
+1. Update the `device` path under `volumes` in [compose.yaml](file:///c:/Projects/My_Projects/Arcane-lab/compose.yaml):
+   ```yaml
+   volumes:
+     arcane-backups:
+       name: arcane-backups            # Keep as 'arcane-backups' for Arcane compatibility
+       driver: local
+       driver_opts:
+         type: none
+         o: bind
+         device: ${PWD}/data/arcane-backups   # <--- Change this to any folder on your host
+   ```
+2. Recreate the stack:
+   ```powershell
+   docker compose down
+   docker volume rm arcane-backups
+   docker compose up -d
+   ```
+
+---
+
 ## Project Structure
 
 ```
 Arcane-lab/
 ├── compose.yaml              # Core stack (Arcane + Traefik)
 ├── .env                      # Arcane production environment configuration
-├── projects/                 # Mounted host directory for Arcane projects
+├── arcane-backups/           # Host storage for volume & system backups (/backups)
+├── arcane-data/              # Internal Arcane application data (SQLite DB, sessions)
+├── projects/                 # Mounted host directory for all Arcane compose projects
 │   └── .env.global           # Global environment variables shared across all projects
 └── traefik/
     ├── traefik.yaml          # Static configuration (entrypoints, providers, logging)
