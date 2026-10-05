@@ -1,0 +1,6 @@
+tls:
+  certificates:
+    # - certFile: /certs/chetan.local.crt
+    #   keyFile: /certs/chetan.local.key
+    - certFile: /certs/domain_public_certificate.crt
+      keyFile: /certs/domain_secret_private.key

@@ -1,0 +1,68 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+.svelte-kit
+frontend/.svelte-kit
+frontend/build
+/build
+data/
+dist/
+/arcane
+/arcane-*
+.bin/
+
+# Claude
+CLAUDE.md
+/.tmp/
+
+# Deepsec scan artifacts
+.deepsec/
+*.key
+*.pem
+*.crt
+.claude/**
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+#tests data
+tests/test-results/*
+tests/.report/*
+tests/.auth/
+tests/.bin/
+tests/setup/projects/*
+!tests/setup/projects/test-project-static/
+!tests/setup/projects/test-project-static/**
+backend/test-results/
+cli/test-results/
+types/test-results/
+backend/.bin
+backend/build-errors.log
+/.idea/**
+.pnpm-store/**
+.pnpm-store
+*.out
+
+cli/arcane-cli
+completions
+*.txt
+inspections/**
+.deepsec/
+
+# Vite+ generated git hook dispatcher
+.vite-hooks/_

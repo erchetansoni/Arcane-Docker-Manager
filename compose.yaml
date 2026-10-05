@@ -1,0 +1,102 @@
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/manager:v2.15.0
+    container_name: arcane
+    env_file:
+      - .env
+    # ports:
+    #   - '${PORT:-3552}:3552'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./arcane-data:/app/data
+      # Optional host project mount:
+      - ./projects:/app/data/projects
+
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - 'traefik.http.routers.arcane-grpc.rule=(Host(`dockermgr.chetan.local`) || Host(`dockermge.chetan.local`)) && Path(`/api/tunnel/connect`) && Method(`POST`) && HeaderRegexp(`Content-Type`, `^application/grpc`)'
+      - traefik.http.routers.arcane-grpc.entrypoints=websecure
+      - traefik.http.routers.arcane-grpc.priority=100
+      - traefik.http.routers.arcane-grpc.tls=true
+      - traefik.http.routers.arcane-grpc.service=arcane-grpc
+      - traefik.http.services.arcane-grpc.loadbalancer.server.port=3552
+      - traefik.http.services.arcane-grpc.loadbalancer.server.scheme=h2c
+      - 'traefik.http.routers.arcane-web.rule=Host(`dockermgr.chetan.local`) || Host(`dockermge.chetan.local`)'
+      - traefik.http.routers.arcane-web.entrypoints=websecure
+      - traefik.http.routers.arcane-web.priority=10
+      - traefik.http.routers.arcane-web.tls=true
+      - traefik.http.routers.arcane-web.service=arcane-web
+      - traefik.http.services.arcane-web.loadbalancer.server.port=3552
+      - traefik.http.services.arcane-web.loadbalancer.server.scheme=http
+
+    networks:
+      - proxy
+
+    # Use the host cgroup namespace so Arcane can detect its own container ID
+    # more reliably — this matters for self-upgrades.
+    cgroup: host
+    restart: unless-stopped
+
+    healthcheck:
+      test: ['CMD', './arcane', 'health', '--timeout', '2s']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  traefik:
+    image: traefik:v3.7.13
+    container_name: traefik
+    hostname: traefik
+    restart: unless-stopped
+
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - 'traefik.http.routers.traefik-dashboard.rule=Host(`proxy.chetan.local`)'
+      - traefik.http.routers.traefik-dashboard.entrypoints=websecure
+      - traefik.http.routers.traefik-dashboard.tls=true
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+
+    networks:
+      - proxy
+
+    # Static configuration is loaded from ./traefik/traefik.yaml
+    # Dynamic configurations (e.g. TLS certificates, middlewares) are loaded from ./traefik/dynamic/
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+      # # Traefik WebUI Port
+      # - "8080:8080"
+    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Static configuration (entrypoints, API, logging, providers definition)
+      - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      # Dynamic configuration directory (hot-reloaded: tls.yaml, custom routers/services)
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      # TLS Certificates directory referenced by tls.yaml
+      - ./traefik/certs:/certs:ro
+    
+    depends_on:
+      arcane:
+        condition: service_healthy
+    
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  proxy:
+    name: proxy
