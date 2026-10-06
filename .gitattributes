@@ -1,0 +1,11 @@
+# Auto-detect text files and normalize line endings
+* text=auto
+
+# Ensure all shell scripts always have Unix LF line endings across Windows and Linux
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Configuration and Compose files
+*.yaml text eol=lf
+*.yml text eol=lf
+.env* text eol=lf

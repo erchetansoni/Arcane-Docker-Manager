@@ -305,3 +305,56 @@ Arcane-lab/
   docker compose down
   docker compose up -d
   ```
+
+---
+
+## Air-Gapped Deployment (Offline Ubuntu Server)
+
+To deploy this entire stack into an air-gapped Ubuntu server with no internet access (reachable only via SSH):
+
+### 1. From your workstation (Connected to internet + SSH access to server):
+Run the bundling script to pull the Docker images, package the configurations and certificates, transfer via SSH/SCP, and automatically run the installer:
+
+**Using Bash (Git Bash / Linux / WSL / macOS):**
+```bash
+# Interactive mode:
+./bundle_and_push.sh
+
+# Non-interactive mode with auto-deploy:
+./bundle_and_push.sh -t ubuntu@192.168.1.100 -i ~/.ssh/id_rsa -r
+```
+
+**Using PowerShell (Windows):**
+```powershell
+# Interactive mode:
+.\bundle_and_push.ps1
+
+# Non-interactive mode with auto-deploy:
+.\bundle_and_push.ps1 -Target "ubuntu@192.168.1.100" -AutoRun
+```
+
+**Offline / USB Mode:**
+If you don't have direct SSH and need to transfer via USB or external drive:
+```bash
+./bundle_and_push.sh --bundle-only
+```
+This generates `arcane-airgap-bundle.tar.gz` containing all Docker images (`docker-images.tar.gz`), project files, and the deployment script.
+
+### 2. On the Air-Gapped Ubuntu Server:
+If you did not use the auto-run (`-r` / `-AutoRun`) flag, unpack the bundle and run the server installer:
+
+```bash
+mkdir -p /opt/arcane-docker-manager
+tar -xzf arcane-airgap-bundle.tar.gz -C /opt/arcane-docker-manager
+cd /opt/arcane-docker-manager
+sudo ./deploy_on_server.sh
+```
+
+The script will:
+1. Verify system Docker and Compose installations.
+2. Load offline Docker images from the bundle (`docker load`).
+3. Create the `proxy` Docker network.
+4. Set secure permissions on TLS keys (`chmod 600`).
+5. Start the stack in background mode (`docker compose up -d`).
+6. Perform container health checks and display access endpoints.
+
