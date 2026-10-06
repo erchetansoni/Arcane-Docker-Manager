@@ -198,7 +198,7 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Ensure Docker Proxy Network Exists
+# 4. Ensure Docker Proxy Network Exists & External Flag Set
 # ------------------------------------------------------------------------------
 if ! $DOCKER_CMD network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
     log_info "Creating external Docker network: ${NETWORK_NAME}..."
@@ -206,6 +206,14 @@ if ! $DOCKER_CMD network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
     log_success "Docker network '${NETWORK_NAME}' created."
 else
     log_info "Docker network '${NETWORK_NAME}' already exists."
+fi
+
+# Ensure compose.yaml specifies 'external: true' so Docker Compose attaches without label mismatch
+if [ -f "$COMPOSE_FILE" ]; then
+    if grep -q "name: ${NETWORK_NAME}" "$COMPOSE_FILE" && ! grep -A 2 "name: ${NETWORK_NAME}" "$COMPOSE_FILE" | grep -q "external: true"; then
+        log_info "Patching ${COMPOSE_FILE} to set 'external: true' for network '${NETWORK_NAME}'..."
+        sed -i "/name: ${NETWORK_NAME}/a \    external: true" "$COMPOSE_FILE" 2>/dev/null || true
+    fi
 fi
 
 # ------------------------------------------------------------------------------
