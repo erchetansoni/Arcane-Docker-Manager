@@ -16,10 +16,10 @@ export MSYS2_ARG_CONV_EXCL="*"
 # ==============================================================================
 
 # --- Remote Server SSH & SCP Configuration ---
-TARGET_SSH="ubuntu@192.168.1.100"                      # Target user & IP/hostname
+TARGET_SSH="chetan@172.20.64.101"                      # Target user & IP/hostname
 SSH_PORT="22"                                          # SSH port on remote server
 SSH_KEY=""                                             # Path to private key (e.g. ~/.ssh/id_rsa, leave empty for default SSH)
-REMOTE_DEST="/opt/arcane-docker-manager"               # Target directory on remote Ubuntu server
+REMOTE_DEST="/home/chetan/arcane-docker-manager"               # Target directory on remote Ubuntu server
 
 # --- Packaging & Output Configuration ---
 OUTPUT_BUNDLE="arcane-airgap-bundle.tar.gz"            # Filename for generated tarball
