@@ -25,7 +25,7 @@ REMOTE_DEST="/opt/arcane-docker-manager"               # Target directory on rem
 OUTPUT_BUNDLE="arcane-airgap-bundle.tar.gz"            # Filename for generated tarball
 COMPOSE_FILE="compose.yaml"                            # Compose file to discover images from
 IMAGE_ARCHIVE_NAME="docker-images.tar.gz"              # Name of the internal Docker image archive
-INCLUDE_DATA=true                                      # Whether to bundle arcane-data (SQLite DB, etc.)
+INCLUDE_DATA=false                                     # Whether to bundle arcane-data (SQLite DB, etc.)
 AUTO_RUN=false                                         # Automatically run deploy_on_server.sh on remote server
 BUNDLE_ONLY=false                                      # Only build the bundle archive (skip SSH upload)
 
