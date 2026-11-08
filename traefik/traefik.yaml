@@ -41,6 +41,9 @@ entryPoints:
     address: ":443"
     http:
       tls: {}
+  # For Zabbix Proxy TCP Port
+  zabbix:
+    address: ":10051" 
 
 providers:
   docker:
