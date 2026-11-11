@@ -1,11 +1,32 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "${LOG_MAX_SIZE:-10m}"
+    max-file: "${LOG_MAX_FILE:-5}"
+
+x-service-defaults: &service-defaults
+  networks:
+    - proxy
+  logging: *default-logging
+
 networks:
   proxy:
     name: proxy
     external: true
 
+volumes:
+  arcane-backups:
+    name: arcane-backups
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/arcane-backups
+
 services:
   arcane:
-    image: ghcr.io/getarcaneapp/manager:v2.15.0
+    <<: *service-defaults
+    image: ghcr.io/getarcaneapp/manager:v2.17.3
     container_name: arcane
     env_file:
       - .env
@@ -26,8 +47,6 @@ services:
       - traefik.http.routers.arcane-web.service=arcane-web
       - traefik.http.services.arcane-web.loadbalancer.server.port=3552
       - traefik.http.services.arcane-web.loadbalancer.server.scheme=http
-    networks:
-      - proxy
     cgroup: host
     restart: unless-stopped
     healthcheck:
@@ -36,13 +55,9 @@ services:
       timeout: 3s
       retries: 5
       start_period: 15s
-    logging:
-      driver: json-file
-      options:
-        max-size: "${LOG_MAX_SIZE:-10m}"
-        max-file: "${LOG_MAX_FILE:-5}"
 
   traefik:
+    <<: *service-defaults
     image: docker.io/traefik:v3.7.17
     container_name: traefik
     hostname: traefik
@@ -51,8 +66,6 @@ services:
       - traefik.enable=true
       - 'traefik.http.routers.traefik-dashboard.rule=Host(`${TRAEFIK_HOST:-proxy.chetan.local}`)'
       - traefik.http.routers.traefik-dashboard.service=api@internal
-    networks:
-      - proxy
     ports:
       - "80:80"
       - "443:443"
@@ -65,17 +78,3 @@ services:
     depends_on:
       arcane:
         condition: service_healthy
-    logging:
-      driver: json-file
-      options:
-        max-size: "${LOG_MAX_SIZE:-10m}"
-        max-file: "${LOG_MAX_FILE:-5}"
-
-volumes:
-  arcane-backups:
-    name: arcane-backups
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD}/arcane-backups
