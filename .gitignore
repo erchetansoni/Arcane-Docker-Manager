@@ -66,3 +66,10 @@ inspections/**
 
 # Vite+ generated git hook dispatcher
 .vite-hooks/_
+
+# Air-gap bundles and temporary archives
+*.tar
+*.tar.gz
+arcane-airgap-bundle.tar.gz
+bundle/
+.tmp_bundle_*
